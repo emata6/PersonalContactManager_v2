@@ -1,0 +1,59 @@
+<p-dialog
+  header="New Reminder"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{width: contacts() ? '440px' : '420px'}"
+>
+  <div style="display:flex; flex-direction:column; gap:0.75rem; padding:0.5rem 0">
+
+    @if (contacts()) {
+      <app-form-label label="Contact" />
+      <p-select
+        [options]="contacts()!"
+        [(ngModel)]="contactId"
+        optionLabel="fullName"
+        optionValue="id"
+        placeholder="Select contact"
+        [filter]="true"
+        filterBy="fullName"
+        appendTo="body"
+      />
+    }
+
+    <app-form-label label="Title" />
+    <input pInputText [(ngModel)]="title" placeholder="Reminder title" />
+
+    <app-form-label label="Note" />
+    <textarea pTextarea [(ngModel)]="note" rows="2" placeholder="Optional note"></textarea>
+
+    <app-form-label label="Due date & time" />
+    <p-datepicker
+      [(ngModel)]="dueAt"
+      [showTime]="true"
+      dateFormat="yy-mm-dd"
+      [minDate]="minDate"
+      appendTo="body"
+    />
+
+    <app-form-label label="Channel" />
+    <p-select
+      [options]="channelOptions"
+      [(ngModel)]="channel"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+    />
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="cancel()" />
+    <p-button
+      label="Save"
+      icon="pi pi-check"
+      [loading]="saving()"
+      [disabled]="isSubmitDisabled"
+      (onClick)="submit()"
+    />
+  </ng-template>
+</p-dialog>

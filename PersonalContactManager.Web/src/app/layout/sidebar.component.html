@@ -1,0 +1,54 @@
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <i class="pi pi-address-book"></i>
+    <span>Contacts</span>
+  </div>
+
+  <ul class="sidebar-menu">
+    <li>
+      <a routerLink="/dashboard" routerLinkActive="active" pRipple>
+        <i class="pi pi-home"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/contacts" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" pRipple>
+        <i class="pi pi-users"></i>
+        <span>All Contacts</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/contacts" [queryParams]="{favoritesOnly: true}" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" pRipple>
+        <i class="pi pi-star"></i>
+        <span>Favorites</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/contacts" [queryParams]="{hasBirthday: true}" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" pRipple>
+        <i class="pi pi-gift"></i>
+        <span>Birthdays</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/reminders" routerLinkActive="active" pRipple>
+        <i class="pi pi-bell"></i>
+        <span>Reminders</span>
+        @if (pendingCount > 0) {
+          <p-badge [value]="pendingCount.toString()" severity="danger" />
+        }
+      </a>
+    </li>
+    <li>
+      <a routerLink="/tags" routerLinkActive="active" pRipple>
+        <i class="pi pi-tag"></i>
+        <span>Tags</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/groups" routerLinkActive="active" pRipple>
+        <i class="pi pi-sitemap"></i>
+        <span>Groups</span>
+      </a>
+    </li>
+  </ul>
+</nav>

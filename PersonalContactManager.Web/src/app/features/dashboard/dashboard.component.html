@@ -1,0 +1,89 @@
+<h1 style="margin:0 0 1.5rem; font-size:1.5rem; font-weight:700">Dashboard</h1>
+
+<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem">
+  @if (loading()) {
+    @for (_ of [1,2,3,4]; track $index) {
+      <p-skeleton height="100px" borderRadius="12px" />
+    }
+  } @else {
+    <div style="background:var(--p-surface-800); border-radius:12px; padding:1.25rem; display:flex; align-items:center; gap:1rem">
+      <div style="width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--p-blue-500)">
+        <i class="pi pi-users" style="font-size:1.4rem; color:#fff"></i>
+      </div>
+      <div style="display:flex; flex-direction:column">
+        <span style="font-size:2rem; font-weight:700; line-height:1">{{ stats()?.total ?? 0 }}</span>
+        <span style="font-size:0.8rem; color:var(--p-surface-400); margin-top:0.25rem">Total Contacts</span>
+      </div>
+    </div>
+    <div style="background:var(--p-surface-800); border-radius:12px; padding:1.25rem; display:flex; align-items:center; gap:1rem; cursor:pointer" (click)="goToFavorites()">
+      <div style="width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--p-yellow-500)">
+        <i class="pi pi-star-fill" style="font-size:1.4rem; color:#fff"></i>
+      </div>
+      <div style="display:flex; flex-direction:column">
+        <span style="font-size:2rem; font-weight:700; line-height:1">{{ stats()?.favorites ?? 0 }}</span>
+        <span style="font-size:0.8rem; color:var(--p-surface-400); margin-top:0.25rem">Favorites</span>
+      </div>
+    </div>
+    <div style="background:var(--p-surface-800); border-radius:12px; padding:1.25rem; display:flex; align-items:center; gap:1rem; cursor:pointer" (click)="goToBirthdays()">
+      <div style="width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--p-green-500)">
+        <i class="pi pi-gift" style="font-size:1.4rem; color:#fff"></i>
+      </div>
+      <div style="display:flex; flex-direction:column">
+        <span style="font-size:2rem; font-weight:700; line-height:1">{{ stats()?.upcomingBirthdays ?? 0 }}</span>
+        <span style="font-size:0.8rem; color:var(--p-surface-400); margin-top:0.25rem">Upcoming Birthdays</span>
+      </div>
+    </div>
+    <div style="background:var(--p-surface-800); border-radius:12px; padding:1.25rem; display:flex; align-items:center; gap:1rem; cursor:pointer" (click)="goToReminders()">
+      <div style="width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--p-red-500)">
+        <i class="pi pi-bell" style="font-size:1.4rem; color:#fff"></i>
+      </div>
+      <div style="display:flex; flex-direction:column">
+        <span style="font-size:2rem; font-weight:700; line-height:1">{{ stats()?.pendingReminders ?? 0 }}</span>
+        <span style="font-size:0.8rem; color:var(--p-surface-400); margin-top:0.25rem">Pending Reminders</span>
+      </div>
+    </div>
+  }
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem">
+  <p-card header="Recent Contacts">
+    @if (loading()) {
+      @for (_ of [1,2,3,4,5]; track $index) {
+        <p-skeleton height="48px" styleClass="mb-2" />
+      }
+    } @else if (recentContacts().length === 0) {
+      <p style="color:var(--p-surface-400); font-size:0.9rem; text-align:center; padding:1rem 0">No contacts yet.</p>
+    } @else {
+      <ul style="list-style:none; margin:0; padding:0">
+        @for (c of recentContacts(); track c.id) {
+          <li style="display:flex; align-items:center; gap:0.75rem; padding:0.6rem 0.5rem; border-radius:8px; cursor:pointer" (click)="open(c.id)">
+            <p-avatar [label]="c.firstName[0]" shape="circle" />
+            <span style="flex:1; font-size:0.95rem">{{ c.fullName }}</span>
+            @if (c.isFavorite) { <i class="pi pi-star-fill" style="color:var(--p-yellow-400); font-size:0.8rem"></i> }
+          </li>
+        }
+      </ul>
+      <p-button label="View all contacts" [text]="true" icon="pi pi-arrow-right" iconPos="right" (onClick)="goToContacts()" styleClass="mt-2" />
+    }
+  </p-card>
+
+  <p-card header="Upcoming Birthdays (14 days)">
+    @if (loading()) {
+      @for (_ of [1,2,3]; track $index) {
+        <p-skeleton height="48px" styleClass="mb-2" />
+      }
+    } @else if (upcomingBirthdays().length === 0) {
+      <p style="color:var(--p-surface-400); font-size:0.9rem; text-align:center; padding:1rem 0">No birthdays in the next 14 days.</p>
+    } @else {
+      <ul style="list-style:none; margin:0; padding:0">
+        @for (c of upcomingBirthdays(); track c.id) {
+          <li style="display:flex; align-items:center; gap:0.75rem; padding:0.6rem 0.5rem; border-radius:8px; cursor:pointer" (click)="open(c.id)">
+            <p-avatar [label]="c.firstName[0]" shape="circle" />
+            <span style="flex:1; font-size:0.95rem">{{ c.fullName }}</span>
+            <span style="font-size:0.8rem; color:var(--p-surface-400)">{{ formatBirthday(c.birthday) }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </p-card>
+</div>

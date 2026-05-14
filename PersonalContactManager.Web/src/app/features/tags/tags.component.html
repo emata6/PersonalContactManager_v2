@@ -1,0 +1,45 @@
+<p-confirmDialog />
+
+<app-page-header title="Tags">
+  <p-button label="New Tag" icon="pi pi-plus" (onClick)="openDialog()" />
+</app-page-header>
+
+<p-table [value]="tags()" [loading]="loading()" styleClass="p-datatable-sm">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Color</th>
+      <th>Name</th>
+      <th style="width:6rem"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-tag>
+    <tr>
+      <td>
+        <span [style]="{display:'inline-block',width:'1rem',height:'1rem',borderRadius:'50%',background:tag.color??'#888'}"></span>
+      </td>
+      <td>{{ tag.name }}</td>
+      <td>
+        <div style="display:flex; gap:0.25rem">
+          <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" (onClick)="openDialog(tag)" />
+          <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" (onClick)="confirmDelete($event, tag.id)" />
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr><td colspan="3" style="text-align:center; padding:3rem; color:var(--p-surface-400)">No tags yet.</td></tr>
+  </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="dialogVisible" [header]="editingTag ? 'Edit Tag' : 'New Tag'" [modal]="true" [style]="{width:'360px'}">
+  <div style="display:flex; flex-direction:column; gap:0.75rem; padding:0.5rem 0">
+    <app-form-label label="Name" />
+    <input pInputText [(ngModel)]="tagName" placeholder="Tag name" />
+    <app-form-label label="Color" />
+    <p-colorpicker [(ngModel)]="tagColor" format="hex" />
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="dialogVisible = false" />
+    <p-button label="Save" [loading]="saving()" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

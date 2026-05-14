@@ -1,0 +1,39 @@
+# ── .NET ──────────────────────────────────────────────────────────────────────
+bin/
+obj/
+*.user
+*.suo
+.vs/
+_ReSharper.Caches/
+*.DotSettings.user
+
+# ── Node / Angular ────────────────────────────────────────────────────────────
+node_modules/
+dist/
+.angular/cache/
+npm-debug.log
+yarn-error.log
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+.dockerignore
+
+# ── Environment & secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+appsettings.Local.json
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Test output ───────────────────────────────────────────────────────────────
+coverage/
+TestResults/

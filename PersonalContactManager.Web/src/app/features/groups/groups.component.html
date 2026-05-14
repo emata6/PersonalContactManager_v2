@@ -1,0 +1,72 @@
+<p-confirmDialog />
+
+<app-page-header title="Groups">
+  <p-button label="New Group" icon="pi pi-plus" (onClick)="openEditDialog()" />
+</app-page-header>
+
+<p-dialog [(visible)]="editDialogVisible" [header]="editingGroup ? 'Edit Group' : 'New Group'" [modal]="true" [style]="{width:'400px'}">
+  <div style="display:flex; flex-direction:column; gap:0.75rem; padding:0.5rem 0">
+    <app-form-label label="Name" />
+    <input pInputText [(ngModel)]="groupName" placeholder="Group name" />
+    <app-form-label label="Description" />
+    <textarea pTextarea [(ngModel)]="groupDesc" rows="3" placeholder="Optional description"></textarea>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="editDialogVisible = false" />
+    <p-button label="Save" [loading]="saving()" (onClick)="save()" />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'Members of ' + (viewingGroup?.name ?? '')"
+  [(visible)]="membersDialogVisible"
+  [modal]="true"
+  [style]="{width:'520px'}"
+>
+  @if (membersLoading()) {
+    <p-skeleton height="48px" styleClass="mb-2" />
+    <p-skeleton height="48px" styleClass="mb-2" />
+    <p-skeleton height="48px" />
+  } @else if (members().length === 0) {
+    <p style="color:var(--p-surface-400); text-align:center; padding:1.5rem 0">No members in this group yet.</p>
+  } @else {
+    <ul style="list-style:none; margin:0; padding:0">
+      @for (m of members(); track m.id) {
+        <li style="display:flex; align-items:center; gap:0.75rem; padding:0.6rem 0.5rem; border-radius:8px; cursor:pointer" (click)="openContact(m.id)">
+          <p-avatar [label]="m.firstName[0]" shape="circle" />
+          <span style="flex:1">{{ m.fullName }}</span>
+          @if (m.email) { <span style="font-size:0.8rem; color:var(--p-surface-400)">{{ m.email }}</span> }
+        </li>
+      }
+    </ul>
+  }
+  <ng-template pTemplate="footer">
+    <p-button label="Close" severity="secondary" [outlined]="true" (onClick)="membersDialogVisible = false" />
+  </ng-template>
+</p-dialog>
+
+<p-table [value]="groups()" [loading]="loading()" styleClass="p-datatable-sm">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th style="width:9rem"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-group>
+    <tr>
+      <td>{{ group.name }}</td>
+      <td>{{ group.description ?? '—' }}</td>
+      <td>
+        <div style="display:flex; gap:0.25rem">
+          <p-button icon="pi pi-users" [text]="true" [rounded]="true" severity="info" pTooltip="View members" (onClick)="openMembers(group)" />
+          <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" (onClick)="openEditDialog(group)" />
+          <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" (onClick)="confirmDelete($event, group.id)" />
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr><td colspan="3" style="text-align:center; padding:3rem; color:var(--p-surface-400)">No groups yet.</td></tr>
+  </ng-template>
+</p-table>

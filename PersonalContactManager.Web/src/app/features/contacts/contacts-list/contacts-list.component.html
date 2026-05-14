@@ -1,0 +1,75 @@
+<p-confirmDialog />
+
+<p-dialog header="Import Contacts from CSV" [(visible)]="importDialogVisible" [modal]="true" [style]="{width:'520px'}" [closable]="true">
+  <div>
+    <p style="margin:0 0 1rem; color:var(--p-surface-400); font-size:0.9rem">
+      Expected columns: <code>FirstName, LastName, Email, Birthday (YYYY-MM-DD), Notes, Iban</code>
+    </p>
+    <input #fileInput type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" style="width:100%" />
+    @if (importPreview()) {
+      <div style="margin-top:1rem; background:var(--p-surface-900); border-radius:8px; padding:0.75rem">
+        <strong>Preview:</strong>
+        <pre style="margin:0.5rem 0 0; font-size:0.75rem; white-space:pre-wrap; word-break:break-all; max-height:200px; overflow-y:auto">{{ importPreview().slice(0, 400) }}{{ importPreview().length > 400 ? '\n…' : '' }}</pre>
+      </div>
+    }
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="importDialogVisible.set(false)" />
+    <p-button label="Import" icon="pi pi-upload" [disabled]="!importPreview()" (onClick)="confirmImport()" />
+  </ng-template>
+</p-dialog>
+
+<app-page-header title="Contacts">
+  <p-button label="Export CSV" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="exportCsv()" />
+  <p-button label="Import CSV" icon="pi pi-upload" severity="secondary" [outlined]="true" (onClick)="openImportDialog()" />
+  <p-button label="New Contact" icon="pi pi-plus" (onClick)="create()" />
+</app-page-header>
+
+<div style="display:flex; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center">
+  <input pInputText type="text" placeholder="Search name or email…" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" style="flex:1; min-width:200px" />
+  <p-select [options]="tags()" [(ngModel)]="selectedTagId" optionLabel="name" optionValue="id" placeholder="Filter by tag" [showClear]="true" (onChange)="onSearch()" [style]="{width:'180px'}" />
+  <p-select [options]="groups()" [(ngModel)]="selectedGroupId" optionLabel="name" optionValue="id" placeholder="Filter by group" [showClear]="true" (onChange)="onSearch()" [style]="{width:'180px'}" />
+  <p-select [options]="sortOptions" [(ngModel)]="selectedSort" optionLabel="label" placeholder="Sort by…" [showClear]="true" (onChange)="onSearch()" [style]="{width:'180px'}" />
+  <p-button icon="pi pi-search" (onClick)="onSearch()" [outlined]="true" />
+</div>
+
+<p-table [value]="contacts()" [loading]="loading()" [rows]="20" [totalRecords]="totalCount()" [paginator]="true" [lazy]="true" (onPage)="onPage($event)" [rowHover]="true" styleClass="p-datatable-sm" dataKey="id">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Tags</th>
+      <th style="width:7rem"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-contact>
+    <tr (click)="open(contact.id)" style="cursor:pointer">
+      <td>
+        <div style="display:flex; align-items:center; gap:0.75rem">
+          <p-avatar [label]="contact.firstName[0]" shape="circle" size="normal" />
+          <span>{{ contact.fullName }}</span>
+          @if (contact.isFavorite) {
+            <i class="pi pi-star-fill" style="color:var(--p-yellow-400); font-size:.85rem"></i>
+          }
+        </div>
+      </td>
+      <td>{{ contact.email ?? '—' }}</td>
+      <td>
+        <div style="display:flex; gap:0.25rem; flex-wrap:wrap">
+          @for (tag of contact.tags; track tag.id) {
+            <p-tag [value]="tag.name" [style]="{'background': tag.color ?? undefined}" />
+          }
+        </div>
+      </td>
+      <td>
+        <div style="display:flex; gap:0.25rem">
+          <p-button icon="pi pi-star" [text]="true" [rounded]="true" severity="secondary" (onClick)="toggleFavorite($event, contact.id)" />
+          <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" (onClick)="confirmDelete($event, contact.id)" />
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr><td colspan="4" style="text-align:center; padding:3rem; color:var(--p-surface-400)">No contacts found.</td></tr>
+  </ng-template>
+</p-table>

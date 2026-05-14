@@ -1,0 +1,45 @@
+<p-confirmDialog />
+
+<app-reminder-dialog
+  [(visible)]="dialogVisible"
+  [contacts]="contacts()"
+  [saving]="saving()"
+  (saved)="onReminderSaved($event)"
+/>
+
+<app-page-header title="Reminders">
+  <p-button label="New Reminder" icon="pi pi-plus" (onClick)="dialogVisible.set(true)" />
+</app-page-header>
+
+<p-table [value]="reminders()" [loading]="loading()" styleClass="p-datatable-sm" [paginator]="true" [rows]="20">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Contact</th>
+      <th>Title</th>
+      <th>Due</th>
+      <th>Channel</th>
+      <th>Status</th>
+      <th style="width:7rem"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-r>
+    <tr>
+      <td>{{ r.contactFullName }}</td>
+      <td>{{ r.title }}</td>
+      <td>{{ r.dueAt | date:'short' }}</td>
+      <td>{{ r.channel }}</td>
+      <td><p-tag [value]="r.status" [severity]="statusSeverity(r.status)" /></td>
+      <td>
+        <div style="display:flex; gap:0.25rem">
+          @if (r.status === 'Pending') {
+            <p-button icon="pi pi-check" [text]="true" [rounded]="true" severity="success" pTooltip="Dismiss" (onClick)="dismiss(r.id)" />
+            <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger"  pTooltip="Cancel"  (onClick)="confirmCancel($event, r.id)" />
+          }
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr><td colspan="6" style="text-align:center; padding:3rem; color:var(--p-surface-400)">No upcoming reminders.</td></tr>
+  </ng-template>
+</p-table>
