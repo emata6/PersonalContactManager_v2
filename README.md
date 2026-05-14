@@ -1,6 +1,6 @@
 # Personal Contact Manager
 
-A full-stack contact management application built with **.NET 10** and **Angular 21**, following Clean Architecture and modern software engineering practices. The project serves as a portfolio piece demonstrating production-level patterns across the entire stack — from domain modelling and CQRS on the backend, to reactive state management and real-time updates on the frontend.
+A full-stack contact management application built with **.NET 10** and **Angular 21**, following Clean Architecture and modern software engineering practices.
 
 ---
 
@@ -145,8 +145,8 @@ Each feature has its own NgRx slice (actions, reducer, effects, selectors). Effe
 ### Run
 
 ```bash
-git clone https://github.com/EmaKyuchukova/personal-contact-manager.git
-cd personal-contact-manager
+git clone https://github.com/emata6/PersonalContactManager_v2.git
+cd PersonalContactManager_v2
 docker compose up
 ```
 
@@ -161,7 +161,7 @@ The API automatically applies EF Core migrations on startup — no manual databa
 
 ### Load Sample Data
 
-A seed file with 24 fictional contacts (Avengers, DC, Sherlock Holmes, Supernatural) is included at `PersonalContactManager.Api/seed-contacts.csv`.
+A seed file with 24 fictional contacts is included at `PersonalContactManager.Api/seed-contacts.csv`.
 
 ```bash
 python3 -c "
@@ -246,59 +246,31 @@ Full interactive documentation is available at `/scalar/v1` when running locally
 
 ## Design Decisions
 
-### Why Clean Architecture?
-Clean Architecture enforces a dependency rule where inner layers know nothing about outer layers. This keeps the domain and business logic completely framework-agnostic and independently testable. Swapping the database provider or adding a new delivery mechanism (e.g. gRPC) requires no changes to the domain or application layers.
-
-### Why CQRS with MediatR?
-Separating commands (writes) from queries (reads) gives each operation a single, focused class. MediatR's pipeline makes it trivial to compose cross-cutting concerns — validation, logging, and transaction management run automatically on every request without polluting the handler. The result is handlers that are short, readable, and easy to test in isolation.
-
-### Why FluentValidation?
-FluentValidation keeps validation rules in dedicated classes rather than buried in controllers or domain methods. Rules are chainable, readable, and fully testable. The `ValidationBehavior` in the MediatR pipeline means validation always runs before a handler executes — no handler ever receives invalid input.
-
-### Why Entity Framework Core?
-EF Core handles the object-relational mapping, migrations, and owned entity types (Address is stored as columns on the Contacts table rather than a separate table). The global query filter for soft delete means deleted records are automatically excluded from every query without any developer effort.
-
-### Why Redis with HybridCache?
+### Redis with HybridCache
 HybridCache (new in .NET 9) provides a two-tier cache: an in-process L1 cache for the fastest possible reads, backed by Redis as an L2 distributed cache so multiple API instances share the same cached data. Frequently read data (contacts list, tags, groups) is served from memory rather than hitting SQL Server on every request.
 
-### Why Hangfire?
+### Hangfire
 Hangfire provides persistent background job scheduling backed by SQL Server. Jobs survive application restarts — if the API goes down and comes back up, scheduled birthday reminders are not lost. The built-in dashboard at `/hangfire` gives visibility into job history without any additional tooling.
 
-### Why SignalR instead of polling?
+### SignalR instead of polling
 Polling means every client hammers the API on a timer regardless of whether anything changed. SignalR maintains a persistent WebSocket connection and pushes events only when something actually happens. The result is instant updates in the browser (reminder toasts, contact list refreshes) with zero unnecessary traffic.
 
-### Why DirectEventDispatcher instead of a message broker?
+### DirectEventDispatcher instead of a message broker
 A message broker (like RabbitMQ) adds significant operational complexity — another service to run, configure, and monitor — that is only justified when services need to communicate across process boundaries. Since all event consumers (SignalR, email) live in the same process, dispatching domain events in-process using `IServiceScopeFactory` achieves the same decoupling with no infrastructure overhead.
 
-### Why NgRx?
-NgRx gives the Angular frontend a single predictable state tree. All server data lives in the store; components never fetch data directly. Effects handle side effects (HTTP calls, SignalR messages) in isolation from components. This architecture scales cleanly as the application grows and makes the data flow easy to follow and debug using NgRx DevTools.
-
-### Why PrimeNG?
-PrimeNG provides a comprehensive set of production-quality Angular components (data tables, dialogs, date pickers, color pickers, chips, tags) that are themeable and accessible out of the box. Building these from scratch would add weeks of work without adding architectural value to a portfolio project.
-
-### Why Docker Compose for local development?
+### Docker Compose for local development
 Docker Compose lets any developer clone the repository and run the entire stack — SQL Server, Redis, API, and frontend — with a single `docker compose up`. There are no local install prerequisites beyond Docker Desktop, no version conflicts, and no manual database setup. The API applies migrations automatically on startup.
 
 ---
 
 ## AI Assistance
 
-This project was developed with the help of [Claude Code](https://claude.ai/code) (Anthropic). AI assistance was used for:
-
-- **UI implementation ideas** — component structure, PrimeNG usage patterns, Angular signal-based patterns, and NgRx effect composition
-- **Project setup** — Docker multi-stage build configuration, nginx reverse proxy setup, and docker-compose orchestration
-
-All architectural decisions, domain modelling, and technology choices were made and understood by the developer. AI served as a productivity tool and sounding board, not as a replacement for engineering judgement.
+AI assistance was used for implementation ideas and some project setup.
 
 ---
 
 ## Future Improvements
 
-Features and concerns that are out of scope for this portfolio project but would be addressed in a production system:
-
-- **Rate limiting** — per-IP fixed-window limits on public endpoints to prevent abuse and brute-force attacks
-- **Distributed tracing** — OpenTelemetry integration to trace requests across the API, database, and cache layers
-- **Metrics & monitoring** — Prometheus/Grafana or Azure Monitor for request latency, error rates, and infrastructure health
 - **Authentication & authorisation** — JWT-based auth so each user manages their own contacts privately
 - **Audit log** — record who changed what and when, using domain events already in place
 - **Recurring reminders** — extend the reminder model to support daily/weekly/monthly recurrence rules
