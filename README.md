@@ -265,7 +265,7 @@ Docker Compose lets any developer clone the repository and run the entire stack 
 
 ## AI Assistance
 
-AI assistance was used for implementation ideas and some project setup.
+AI assistance was used for implementation ideas(especially on the frontend side) and some project setup.
 
 ---
 
