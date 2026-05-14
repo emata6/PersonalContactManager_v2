@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using PersonalContactManager.Application.Contacts.Commands.AddPhoneNumber;
 using PersonalContactManager.Application.Contacts.Commands.AssignGroup;
 using PersonalContactManager.Application.Contacts.Commands.AssignTag;
@@ -31,7 +30,6 @@ namespace PersonalContactManager.Api.Controllers;
 public sealed class ContactsController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    [EnableRateLimiting("search")]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? searchTerm,
         [FromQuery] Guid? tagId,
@@ -196,7 +194,6 @@ public sealed class ContactsController(ISender sender) : ControllerBase
     }
 
     [HttpPost("{id:guid}/email")]
-    [EnableRateLimiting("email")]
     public async Task<IActionResult> SendEmail(
         Guid id,
         [FromBody] SendEmailRequest request,

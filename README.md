@@ -63,9 +63,6 @@ The contacts list supports server-side search by name or email and paginated res
 ### Soft Delete
 Contacts are never permanently deleted on the first delete action — they are soft-deleted (flagged with `IsDeleted`) and can be restored. A global EF Core query filter transparently excludes soft-deleted records from all queries.
 
-### Rate Limiting
-The API enforces per-IP fixed-window rate limits (100 requests/minute globally, tighter limits on search and email endpoints) to prevent abuse.
-
 ---
 
 ## Tech Stack
@@ -122,7 +119,7 @@ PersonalContactManager.Api             ← depends on all three (composition roo
 
 **Infrastructure** implements the repository interfaces, EF Core `AppDbContext`, Hangfire jobs, the `DirectEventDispatcher` (dispatches domain events in-process to SignalR and email), and Redis caching via `HybridCache`.
 
-**API** is the composition root: controllers, SignalR hub, rate limiting, CORS, and `Program.cs` wiring.
+**API** is the composition root: controllers, SignalR hub, CORS, and `Program.cs` wiring.
 
 ### Frontend — Feature-based Angular
 
@@ -292,3 +289,16 @@ This project was developed with the help of [Claude Code](https://claude.ai/code
 - **Project setup** — Docker multi-stage build configuration, nginx reverse proxy setup, and docker-compose orchestration
 
 All architectural decisions, domain modelling, and technology choices were made and understood by the developer. AI served as a productivity tool and sounding board, not as a replacement for engineering judgement.
+
+---
+
+## Future Improvements
+
+Features and concerns that are out of scope for this portfolio project but would be addressed in a production system:
+
+- **Rate limiting** — per-IP fixed-window limits on public endpoints to prevent abuse and brute-force attacks
+- **Distributed tracing** — OpenTelemetry integration to trace requests across the API, database, and cache layers
+- **Metrics & monitoring** — Prometheus/Grafana or Azure Monitor for request latency, error rates, and infrastructure health
+- **Authentication & authorisation** — JWT-based auth so each user manages their own contacts privately
+- **Audit log** — record who changed what and when, using domain events already in place
+- **Recurring reminders** — extend the reminder model to support daily/weekly/monthly recurrence rules

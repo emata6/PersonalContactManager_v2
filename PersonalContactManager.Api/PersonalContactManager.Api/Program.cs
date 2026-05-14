@@ -1,6 +1,4 @@
-using System.Threading.RateLimiting;
 using Hangfire;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using PersonalContactManager.Api.Hubs;
 using PersonalContactManager.Api.Middleware;
@@ -30,42 +28,6 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials()));
 
-// ── Rate limiting ──────────────────────────────────────────────────────────────
-builder.Services.AddRateLimiter(options =>
-{
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 100,
-                Window = TimeSpan.FromMinutes(1),
-                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0
-            }));
-
-    options.AddFixedWindowLimiter("search", o =>
-    {
-        o.PermitLimit = 20;
-        o.Window = TimeSpan.FromMinutes(1);
-        o.QueueLimit = 0;
-    });
-
-    options.AddFixedWindowLimiter("email", o =>
-    {
-        o.PermitLimit = 5;
-        o.Window = TimeSpan.FromMinutes(1);
-        o.QueueLimit = 0;
-    });
-
-    options.OnRejected = async (ctx, token) =>
-    {
-        ctx.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        await ctx.HttpContext.Response.WriteAsJsonAsync(
-            new { error = "Too many requests. Please try again later." }, token);
-    };
-});
-
 // ── Controllers & OpenAPI ──────────────────────────────────────────────────────
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
@@ -83,7 +45,6 @@ using (var scope = app.Services.CreateScope())
 // ── Middleware pipeline ────────────────────────────────────────────────────────
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseCors("Angular");
-app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {
