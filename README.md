@@ -145,7 +145,7 @@ Each feature has its own NgRx slice (actions, reducer, effects, selectors). Effe
 ### Run
 
 ```bash
-git clone https://github.com/emata6/PersonalContactManager_v2.git
+git clone <repo_name>
 cd PersonalContactManager_v2
 docker compose up
 ```
